@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 function collect (arr) {
 	let output = {}
 
@@ -7,12 +9,14 @@ function collect (arr) {
 		if (!domain) return item
 		output[domain.hostname] = output[domain.hostname] || {
 			h: [],
+			formatDate: {},
 			visitCount: 0
 		}
 
 		let t = output[domain.hostname]
 		t.visitCount += item.visitCount
 		t.key = index
+		formatLastTime(item)
 		t.h.push(item)
 	})
 
@@ -66,6 +70,41 @@ function getDomain (url) {
 	} else {
 		return undefined
 	}
+}
+function formatLastTime (item) {
+	let time = item.lastVisitTime
+
+	item.lastDate = moment(time).format('MM.DD')
+	item.lastTime = moment(time).format('HH:mm:ss')
+}
+function formatVisitTime (item) {
+	let time = item.visitTime
+
+	item.visitDate = moment(time).format('MM.DD')
+	item.visitTime = moment(time).format('HH:mm:ss')
+}
+export const getVisits = async arr => {
+	let out = []
+
+	var promises = arr.map(item => {
+		return new Promise(resolve => {
+			chrome.history.getVisits({
+				url: item.url
+			}, visitItems => {
+				visitItems.sort((a, b) => b.visitTime - a.visitTime)
+				visitItems.forEach(t => {
+					t.title = item.title
+					t.url = item.url
+					formatVisitTime(t)
+				})
+				out = out.concat(visitItems)
+				resolve(true)
+			})
+		})
+	})
+
+	await Promise.all(promises)
+	return out
 }
 
 export default main

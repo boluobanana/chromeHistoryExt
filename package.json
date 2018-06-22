@@ -7,8 +7,11 @@
   "private": false,
   "dependencies": {
     "axios": "^0.17.0",
+    "echarts": "^4.1.0",
     "element-ui": "^2.0.1",
     "lodash": "^4.17.4",
+    "moment": "^2.22.2",
+    "v-charts": "^1.17.4",
     "vue": "^2.5.2",
     "vue-meta": "^1.2.0",
     "vue-pouch": "^0.0.22",
